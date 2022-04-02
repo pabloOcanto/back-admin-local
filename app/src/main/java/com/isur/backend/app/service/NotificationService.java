@@ -6,14 +6,20 @@ import com.isur.backend.app.model.Notification;
 import com.isur.backend.app.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -29,6 +35,9 @@ public class NotificationService {
 
     @Autowired
     private Mapper mapper;
+
+    @PersistenceContext
+    private EntityManager em;
 
     public CompletableFuture<Object> createNotification(NotificationDTO notificationDTO) {
         CompletableFuture<Notification> completableFuture = CompletableFuture.supplyAsync(
@@ -81,14 +90,31 @@ public class NotificationService {
         return completableFuture;
     }
 
-    public CompletableFuture<List<Notification>> getAllNotification(Long userId) {
-        CompletableFuture<List<Notification>> completableFuture = CompletableFuture.supplyAsync(
-                ()->{
-                    return repository.findByUserCreatedId(userId)
-                            .stream()
-                            .sorted(Comparator.comparing(Notification::getDateCreated).reversed())
-                            .collect(Collectors.toList());
-                });
-        return completableFuture;
+    public List<Notification> getNotification(Map<String,String> allRequestParams) {
+        if (allRequestParams.isEmpty()){
+            repository.findAll()
+                    .stream()
+                    .sorted(Comparator.comparing(Notification::getDateCreated).reversed())
+                    .collect(Collectors.toList());
+        }
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Notification> cq = cb.createQuery(Notification.class);
+        Root<Notification> notification = cq.from(Notification.class);
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        if (allRequestParams.get("user") != null) {
+            predicates.add(cb.equal(notification.get("user_created_id"), allRequestParams.get("user")));
+        }
+        if (allRequestParams.get("topico") != null) {
+            predicates.add(cb.equal(notification.get("topic"), allRequestParams.get("topico")));
+        }
+        if (allRequestParams.get("fecha") != null) {
+            predicates.add(cb.equal(notification.get("date_created"), allRequestParams.get("fecha")));
+        }
+        cq.where(predicates.toArray(new Predicate[] {}));
+        TypedQuery<Notification> query = em.createQuery(cq);
+        List<Notification> notif = query.getResultList();
+        return notif;
     }
 }
