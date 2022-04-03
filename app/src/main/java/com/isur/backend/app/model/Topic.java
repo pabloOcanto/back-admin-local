@@ -14,7 +14,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Topic {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;

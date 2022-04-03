@@ -30,7 +30,7 @@ public class NotificationController {
     }
 
     @GetMapping("/getNotification")
-    public ResponseEntity<?> getNotification(@RequestParam Map<String,String> allRequestParams) {
+    public ResponseEntity<?> getNotification(@RequestParam Map<String,String> allRequestParams) throws ParseException {
         List<Notification> list = service.getNotification(allRequestParams);
         return new ResponseEntity<>(list, HttpStatus.OK);
 

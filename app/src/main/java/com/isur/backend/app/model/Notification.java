@@ -17,7 +17,7 @@ public class Notification implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "topic")
     private String topic;

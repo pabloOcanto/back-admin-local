@@ -6,7 +6,6 @@ import com.isur.backend.app.model.Notification;
 import com.isur.backend.app.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -17,9 +16,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -90,7 +93,7 @@ public class NotificationService {
         return completableFuture;
     }
 
-    public List<Notification> getNotification(Map<String,String> allRequestParams) {
+    public List<Notification> getNotification(Map<String,String> allRequestParams) throws ParseException {
         if (allRequestParams.isEmpty()){
             repository.findAll()
                     .stream()
@@ -104,13 +107,15 @@ public class NotificationService {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         if (allRequestParams.get("user") != null) {
-            predicates.add(cb.equal(notification.get("user_created_id"), allRequestParams.get("user")));
+            predicates.add(cb.equal(notification.get("userCreatedId"), Long.valueOf(allRequestParams.get("user"))));
         }
-        if (allRequestParams.get("topico") != null) {
-            predicates.add(cb.equal(notification.get("topic"), allRequestParams.get("topico")));
+        if (allRequestParams.get("topic") != null) {
+            predicates.add(cb.equal(notification.get("topic"), allRequestParams.get("topic")));
         }
-        if (allRequestParams.get("fecha") != null) {
-            predicates.add(cb.equal(notification.get("date_created"), allRequestParams.get("fecha")));
+        if (allRequestParams.get("date") != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            predicates.add(cb.equal(notification.get("dateCreated"),
+                    LocalDateTime.parse(allRequestParams.get("date"),formatter)));
         }
         cq.where(predicates.toArray(new Predicate[] {}));
         TypedQuery<Notification> query = em.createQuery(cq);

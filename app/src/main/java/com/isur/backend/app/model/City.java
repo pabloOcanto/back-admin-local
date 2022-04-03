@@ -14,7 +14,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class City {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "lat")
     private Float lat;
