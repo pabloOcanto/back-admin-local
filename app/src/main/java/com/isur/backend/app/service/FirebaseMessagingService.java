@@ -2,10 +2,8 @@ package com.isur.backend.app.service;
 
 import com.isur.backend.app.dto.MessageDTO;
 import com.isur.backend.app.dto.NotificationMobileDTO;
-import com.isur.backend.app.dto.ResultDTO;
 import com.isur.backend.app.exception.NotificationMobileException;
 import com.isur.backend.app.model.Notification;
-import org.apache.commons.collections.map.AbstractMapDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

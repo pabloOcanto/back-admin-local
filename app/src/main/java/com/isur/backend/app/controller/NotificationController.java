@@ -4,15 +4,13 @@ import com.isur.backend.app.dto.NotificationDTO;
 import com.isur.backend.app.model.Notification;
 import com.isur.backend.app.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -31,8 +29,8 @@ public class NotificationController {
 
     @GetMapping("/getNotification")
     public ResponseEntity<?> getNotification(@RequestParam Map<String,String> allRequestParams) throws ParseException {
-        List<Notification> list = service.getNotification(allRequestParams);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        PageImpl<Notification> listPage = service.getNotification(allRequestParams);
+        return new ResponseEntity<>(listPage, HttpStatus.OK);
 
     }
 

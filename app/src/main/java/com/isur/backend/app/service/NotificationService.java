@@ -6,6 +6,7 @@ import com.isur.backend.app.model.Notification;
 import com.isur.backend.app.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -16,7 +17,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -93,12 +93,18 @@ public class NotificationService {
         return completableFuture;
     }
 
-    public List<Notification> getNotification(Map<String,String> allRequestParams) throws ParseException {
+    public PageImpl<Notification> getNotification(Map<String,String> allRequestParams) {
+        //.sorted(Comparator.comparing(Notification::getDateCreated).reversed())
+
         if (allRequestParams.isEmpty()){
-            repository.findAll()
+
+            return  new PageImpl<Notification>(
+            repository
+                    .findAll()
                     .stream()
-                    .sorted(Comparator.comparing(Notification::getDateCreated).reversed())
-                    .collect(Collectors.toList());
+                    .sorted(Comparator.comparing(Notification::getDateCreated)
+                            .reversed()).collect(Collectors.toList())
+            );
         }
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -120,6 +126,6 @@ public class NotificationService {
         cq.where(predicates.toArray(new Predicate[] {}));
         TypedQuery<Notification> query = em.createQuery(cq);
         List<Notification> notif = query.getResultList();
-        return notif;
+        return  new PageImpl<Notification>(notif);
     }
 }

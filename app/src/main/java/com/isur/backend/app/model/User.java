@@ -1,6 +1,5 @@
 package com.isur.backend.app.model;
 
-import com.isur.backend.app.utils.Status;
 import lombok.Data;
 
 import javax.persistence.Column;

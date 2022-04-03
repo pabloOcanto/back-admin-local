@@ -1,6 +1,7 @@
 package com.isur.backend.app.dto;
 
 import lombok.Data;
+
 import java.io.Serializable;
 
 @Data

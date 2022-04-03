@@ -29,7 +29,7 @@ CREATE TABLE public.user (
 	id serial PRIMARY key,
 	dni bigint  not null,
 	email varchar(50),
-	password varchar(15) not null,
+	password varchar(70) not null,
 	mobile_phone bigint,
 	full_name varchar(100),
 	status varchar(15) not null,
