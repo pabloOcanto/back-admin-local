@@ -2,6 +2,7 @@ package com.isur.backend.app.service;
 
 import com.github.dozermapper.core.Mapper;
 import com.isur.backend.app.dto.NotificationDTO;
+import com.isur.backend.app.dto.NotificationFCMDTO;
 import com.isur.backend.app.model.Notification;
 import com.isur.backend.app.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,7 @@ import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -44,15 +42,16 @@ public class NotificationService {
 
     public CompletableFuture<Object> createNotification(NotificationDTO notificationDTO) {
         CompletableFuture<Notification> completableFuture = CompletableFuture.supplyAsync(
-                ()->{
+                () -> {
                     StringBuffer cities = new StringBuffer();
                     StringBuffer latitudes = new StringBuffer();
-                    notificationDTO.getArea().stream().forEach( noti-> {
-                        cities.append(noti.getState() +","+noti.getCity()).append(";");
-                        latitudes.append(noti.getLat()+","+ noti.getLon()).append(";");
+                    notificationDTO.getArea().stream().forEach(noti -> {
+                        cities.append(noti.getState() + ";" + noti.getCity()).append("_");
+                        latitudes.append(noti.getLat() + ";" + noti.getLon()).append("_");
                     });
-                    cities.deleteCharAt(cities.length()-1);
-                    latitudes.deleteCharAt(latitudes.length()-1);
+                    cities.deleteCharAt(cities.length() - 1);
+                    latitudes.deleteCharAt(latitudes.length() - 1);
+
                     Notification notif = new Notification();
                     notif.setTopic(notificationDTO.getTopic());
                     notif.setTitle(notificationDTO.getTitle());
@@ -79,31 +78,43 @@ public class NotificationService {
         return notified;
     }
 
+    //TODO Implementar para IOS, esta solo envia a Android.
     public CompletableFuture<Object> sendToNotificationService(Notification notification) {
         CompletableFuture<Object> completableFuture = CompletableFuture.supplyAsync(
                 () -> {
                     try {
+
+                        HashMap notificationHeader = new HashMap();
+
+                        notificationHeader.put("title", notification.getTitle());
+                        notificationHeader.put("sound", "Tri-tone");
+
+                        NotificationFCMDTO notificationFCMDTO = new NotificationFCMDTO();
+                        notificationFCMDTO.setTo("/topics/" + notification.getTopic());
+                        notificationFCMDTO.setNotification(notificationHeader);
+                        notificationFCMDTO.setData(notification);
+                        notificationFCMDTO.setContentAvaible(true);
                         firebaseMessagingService.sendNotification(notification);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    return "Voucher created";
+                    return "Notification created";
                 }
         );
         return completableFuture;
     }
 
-    public PageImpl<Notification> getNotification(Map<String,String> allRequestParams) {
+    public PageImpl<Notification> getNotification(Map<String, String> allRequestParams) {
         //.sorted(Comparator.comparing(Notification::getDateCreated).reversed())
 
-        if (allRequestParams.isEmpty()){
+        if (allRequestParams.isEmpty()) {
 
-            return  new PageImpl<Notification>(
-            repository
-                    .findAll()
-                    .stream()
-                    .sorted(Comparator.comparing(Notification::getDateCreated)
-                            .reversed()).collect(Collectors.toList())
+            return new PageImpl<Notification>(
+                    repository
+                            .findAll()
+                            .stream()
+                            .sorted(Comparator.comparing(Notification::getDateCreated)
+                                    .reversed()).collect(Collectors.toList())
             );
         }
 
@@ -121,11 +132,13 @@ public class NotificationService {
         if (allRequestParams.get("date") != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             predicates.add(cb.equal(notification.get("dateCreated"),
-                    LocalDateTime.parse(allRequestParams.get("date"),formatter)));
+                    LocalDateTime.parse(allRequestParams.get("date"), formatter)));
         }
-        cq.where(predicates.toArray(new Predicate[] {}));
+        cq.where(predicates.toArray(new Predicate[]{}));
         TypedQuery<Notification> query = em.createQuery(cq);
         List<Notification> notif = query.getResultList();
-        return  new PageImpl<Notification>(notif);
+        return new PageImpl<Notification>(notif);
     }
+
+
 }

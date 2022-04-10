@@ -9,6 +9,8 @@ public class NotificationDTO {
     private String topic;
     private String title;
     private String message;
+    private String icon;
+    private String locationdescription;
     private List<CityDTO> area;
     private Long userCreatedId;
 }
