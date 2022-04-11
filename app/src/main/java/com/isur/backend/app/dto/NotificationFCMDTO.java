@@ -1,15 +1,14 @@
 package com.isur.backend.app.dto;
 
-import com.isur.backend.app.model.Notification;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashMap;
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.Map;
+
 @Data
-public class NotificationFCMDTO {
+public class NotificationFCMDTO implements Serializable {
     private String to;
-    private HashMap notification;
-    private Notification data;
-    @JsonProperty(value = "content_avaible")
-    private boolean contentAvaible= true;
+    private Map<String, Object> notification;
+    private Map<String, Object> data;
+    private boolean content_avaible = true;
 }

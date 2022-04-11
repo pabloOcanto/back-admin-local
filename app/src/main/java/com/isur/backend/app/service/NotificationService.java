@@ -55,7 +55,9 @@ public class NotificationService {
                     Notification notif = new Notification();
                     notif.setTopic(notificationDTO.getTopic());
                     notif.setTitle(notificationDTO.getTitle());
-                    notif.setDescription(notificationDTO.getMessage());
+                    notif.setMessage(notificationDTO.getMessage());
+                    notif.setLocationdescription(notificationDTO.getLocationdescription());
+                    notif.setIcon(notificationDTO.getIcon());
                     notif.setArea(cities.toString());
                     notif.setUserCreatedId(notificationDTO.getUserCreatedId());
                     notif.setDateCreated(LocalDateTime.now());
@@ -85,6 +87,7 @@ public class NotificationService {
                     try {
 
                         HashMap notificationHeader = new HashMap();
+                        HashMap notificationData = new HashMap();
 
                         notificationHeader.put("title", notification.getTitle());
                         notificationHeader.put("sound", "Tri-tone");
@@ -92,9 +95,17 @@ public class NotificationService {
                         NotificationFCMDTO notificationFCMDTO = new NotificationFCMDTO();
                         notificationFCMDTO.setTo("/topics/" + notification.getTopic());
                         notificationFCMDTO.setNotification(notificationHeader);
-                        notificationFCMDTO.setData(notification);
-                        notificationFCMDTO.setContentAvaible(true);
-                        firebaseMessagingService.sendNotification(notification);
+
+                        notificationData.put("topic", notification.getTopic());
+                        notificationData.put("title", notification.getTitle());
+                        notificationData.put("message", notification.getMessage());
+                        notificationData.put("locationdescription", notification.getLocationdescription());//TODO sacar harcodeo
+                        notificationData.put("icon", notification.getIcon());
+                        notificationData.put("location", notification.getArea());
+                        notificationFCMDTO.setData(notificationData);
+                        // notificationFCMDTO.setContentAvaible(true);
+                        firebaseMessagingService.sendNotification(notificationFCMDTO);
+                        //firebaseMessagingService.sendNotificationToIos(notificationFCMDTO);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

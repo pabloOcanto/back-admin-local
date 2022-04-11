@@ -2,10 +2,7 @@ package com.isur.backend.app.model;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -24,11 +21,17 @@ public class Notification implements Cloneable {
     @Column(name = "title")
     private String title;
 
+    @Transient
+    private String icon;
+
+    @Transient
+    private String locationdescription;
+
     @Column(name = "area")
     private String area;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "message")
+    private String message;
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
@@ -38,6 +41,7 @@ public class Notification implements Cloneable {
 
     @Column(name = "status")
     private String status;
+
 
     public Object clone() throws CloneNotSupportedException
     {
